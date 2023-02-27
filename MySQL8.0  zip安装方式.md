@@ -4,6 +4,8 @@
 
 ### 2.初始化配置文件
 
+[官方教程](https://dev.mysql.com/doc/refman/8.0/en/windows-install-archive.html)
+
 ​	1.bin同级目录新建my.ini文件,复制配置内容
 
 ```
@@ -41,7 +43,7 @@ default-character-set=utf8
 
 ​	1.管理员打卡cmd，进入bin目录
 
-​	2.输入命令
+​	2.生成随机密码方式
 
 ```
 mysqld   --initialize   --console
@@ -49,25 +51,49 @@ mysqld   --initialize   --console
 
 会得到一串临时密码，**要保存！！！**
 
+3.不生成密码
+
+```
+mysqld   --initialize--insecure
+```
+
+
+
 ### 4.安装mysql服务
 
 1.输入命令
 
 ```
-mysqld  --install  
+mysqld  --install  [MySQL3307]
 ```
+
+默认名称是MySQL,
 
 2.启动服务器
 
 ```
-net  start  mysql
+net  start  MySQL3307
 ```
 
 3.关闭服务器
 
 ```
-net stop msyql
+net stop MySQL3307
 ```
+
+4.删除服务
+
+```
+SC DELETE MySQL3307
+```
+
+或者
+
+```
+mysqld --remove
+```
+
+
 
 ### 5.进入mysql并修改密码
 
