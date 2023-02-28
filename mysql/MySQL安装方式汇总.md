@@ -111,3 +111,48 @@ ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '新密�
 
 
 
+## MySQL5.7 zip安装
+
+```
+[mysql]
+# 设置mysql客户端默认字符集
+default-character-set = utf8
+
+[mysqld]
+
+# Remove leading # and set to the amount of RAM for the most important data
+# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+# innodb_buffer_pool_size = 128M
+
+# Remove leading # to turn on a very important data integrity option: logging
+# changes to the binary log between backups.
+# log_bin
+
+# These are commonly set, remove the # and set as required.
+# 设置mysql的安装目录
+basedir = D:\path-to-mysql
+# 设置mysql数据库的数据的存放目录
+datadir = D:\path-to-mysql\data
+#设置3306端口
+port = 3306
+# server_id = .....
+
+# 允许最大连接数
+max_connections = 200
+# 服务端使用的字符集默认为8比特编码的latin1字符集
+character-set-server = utf8
+# 创建新表时将使用的默认存储引擎
+default-storage-engine = INNODB
+
+# Remove leading # to set options mainly useful for reporting servers.
+# The server defaults are faster for transactions and fast SELECTs.
+# Adjust sizes as needed, experiment to find the optimal values.
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M 
+
+sql_mode = NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
+# wait_timeout = 28800
+```
+
+需要保存为ANSI格式，其他操作步骤一样
