@@ -48,3 +48,45 @@ npm -v
 npx -v
 ```
 
+## nvm安装
+
+### 下载安装包
+
+在nvm的[GitHub页面](https://github.com/coreybutler/nvm-windows/releases)下载nvm安装包(nvm-setup.zip)
+
+### 安装nvm
+
+按照安装向导提示进行安装
+
+### 验证
+
+```
+nvm -v
+```
+
+### nvm使用
+
+- 列举可用的node版本
+
+```
+nvm list available
+```
+
+- 安装指定版本
+
+```
+nvm install 12
+```
+
+- 列举已安装版本
+
+```
+nvm list
+```
+
+- 使用指定版本
+
+```
+nvm use <node_version>
+```
+
