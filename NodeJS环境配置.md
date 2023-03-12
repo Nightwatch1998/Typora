@@ -54,9 +54,20 @@ npx -v
 
 在nvm的[GitHub页面](https://github.com/coreybutler/nvm-windows/releases)下载nvm安装包(nvm-setup.zip)
 
+nvm安装后会检测已安装的node版本，并进行覆盖
+
 ### 安装nvm
 
 按照安装向导提示进行安装
+
+### 配置镜像源
+
+setting.txt文件中添加
+
+```
+node_mirror: https://npm.taobao.org/mirrors/node/
+npm_mirror: https://npm.taobao.org/mirrors/npm/
+```
 
 ### 验证
 
