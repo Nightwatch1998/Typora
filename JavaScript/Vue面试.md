@@ -335,6 +335,21 @@ vuex-persist持久化插件
 
 ## nextTick作用是什么？实现原理？
 
+vue更新DOM是异步更新的，数据变化，DOM更新不会马上完成。
+
+nextTick能够在**下一次DOM更新循环结束后执行回调函数**，以确保DOM已经被更新。
+
+实现原理：宏任务和微任务(优先级较高)
+
+- **Promise**：将函数延迟到函数调用栈最末端，**微任务**
+- **MutationObserver**：监听DOM节点变动，所有DOM变动完成之后，执行回调函数。
+- 以上都不行则采用**SetTimeout**把函数延迟到DOM更新之后再使用。**宏任务**
+
+执行时机：
+
+- 宏任务包括：script整体代码、setTimeout、setInterval、setImmediate、IO操作、UI渲染等
+- 微任务包括：Promise.then()、Promise.catch()、Promise.finally()、MutationObserver等等
+
 ## keep-alive使用场景和原理
 
 - keep-alive是vue的内置组件，用于缓存内部组件的实例。**避免创建组件带来的开销，保留组件状态。**
@@ -362,3 +377,17 @@ vuex-persist持久化插件
 ```
 
 ## Vue.set方法原理
+
+两种情况下修改Vue不会触发视图更新：
+
+1. 实例创建后，给实例添加新的属性
+2. 直接更改数组下标修改数组的值
+
+Vue.set用于给响应式对象添加新的属性，以便能够响应式更新视图。对新的属性进行响应式跟踪，触发对象的dep收集到的watcher去更新
+
+```
+// 两种方式
+Vue.set(object, propertyName, value)
+this.$set(this.obj, 'key', value)
+```
+
