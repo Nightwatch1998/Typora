@@ -198,9 +198,7 @@ function reactive(obj) {
 
 ```
 
-## vue2、vue3渲染器的diff算法
-
-
+## vue2、vue3渲染器的diff算法(看源码补充)
 
 **diff算法：**
 
@@ -217,3 +215,150 @@ vue2：
 vue3:
 
 - 基于Map数据结构，可以更快地进行比较。查找节点时间复杂度O(1)
+
+## hash模式和history模式的实现原理（补充）
+
+hash值的的变化，**不会**导致浏览器向服务器发出请求。浏览器不发出请求，就不会刷新页面。前端路由器通过监听**hashchange**监听hash发生了哪些变化，根据变化实现更新。
+
+history模式的实现主要是依据pushState和replaceState两个api，监听**url**来实现页面更新。URL路径变化会触发浏览器向服务器发送请求。
+
+区别：
+
+- hash模式的url有“**#**”，“**#**”后面部分表示应用程序的路由路径；history没有
+- **刷新页面时**hash模式可以正常加载页面。history没有处理的话，会返回404，它需要后端支持
+- **兼容性上**，hash可以支持低版本浏览器和IE
+
+## vue-router路由钩子函数是什么，执行顺序？
+
+全局守卫、路由守卫、组件守卫
+
+- beforeEach:路由切换之前触发。**检测用户是否登录。**
+- beforeResolve：路由切换**完成前**触发。获取数据，确保所有数据都已经加载。
+- afterEach:路由切换后，**执行一些全局操作**
+- beforeEnter:路由进入前，可以检测路由参数是否有效
+- beforeRouteUpdate：路由更新前，**可以处理参数变化时需要更新的数据**，只会在当前组件复用时触发
+- beforeRouteLeave: 在路由离开之前触发
+
+完整的导航解析流程：
+
+1. 导航触发
+
+2. 在失活的组件里调用 **beforeRouterLeave** 守卫√
+
+3. 调用全局的**beforeEach**守卫√
+
+4. 在重用的组件之前调用**beforeRouteUpdate**，同样是旧有的
+
+5. 路由配置里面调用**beforeEnter**
+
+6. 解析异步路由组件
+
+7. 被激活的组件里调用**beforeRouteEnter**√
+
+8. 调用全局的**beforeResolve**√
+
+9. 导航被确认
+
+10. 调用全局**afterEach√**
+
+11. 调用 beforeRouterEnter 守卫中传给 **next** 的回调函数，创建好的组件实例会作为回
+
+    调函数的参数传入
+
+## vue-router动态路由是什么？
+
+需要把某种模式匹配到的所有路由，映射到一个组件。可以使用动态路径参数实现。**路径参数用冒号：表示**,可以有多个路径参数，会映射到$route.params上的对应字段
+
+组件复用导致路由参数失效怎么办？因为不会触发生命周期函数
+
+- 通过watch监听路由参数，再发起请求
+
+```js
+1 watch：{
+2 	"router":function(){
+3 		this.getData(this.$router.params.xxx)
+4 	}
+5 }
+```
+
+- 用key来阻止复用
+
+```
+router-view :key="$route.fullPath"
+```
+
+## 对vuex的理解
+
+vuex是专门为vue开发的状态管理器，采用集中式存储管理应用中所有组件的状态。
+
+组件创建或者销毁时，组件会被初始化，导致data也会被销毁。
+
+主要模块：
+
+- State：定义了应用状态的数据结构，可以初始化默认状态
+- Getter:允许组件从store中获取数据，mapGetters辅助函数将state中的getter映射为**局部计算属性**
+- Mutation：同步更改store
+- Action：用于提交mutation，可以异步进行
+- Module：允许将单一的Store拆分为多个store
+
+## Vuex页面刷新丢失数据怎么解决？
+
+需要做vuex**数据持久化**，一般使用本地存储的方案。保存在cookie或者localStorage中
+
+vuex-persist持久化插件
+
+## vue中使用了哪些设计模式？
+
+- **观察者模式**：响应式数据原理
+- **单例模式**：整个程序只有一个vue的根组件、vuex的store、vue-router的每个路由
+- **发布订阅模式**：事件机制，多了消息代理和事件通道
+- 装饰器模式：@装饰器的用法
+- 策略模式：对象的行为在不同的场景有不同的实现方案
+- 工厂模式：传入参数即可创建实例，虚拟
+- **代理模式**：vue3的proxy
+
+## Vue性能优化（重点）
+
+- 对象层级**不要过深**，否则影响性能、可读性和可维护性
+- **不需要响应式的数据**不要放在data中，可以使用Object.freeze()冻结
+- v-if和v-show区分场景使用，v-if用于**不经常切换的场景**，v-show适用于经常切换的场景
+- v-for 遍历必须加key，最好是id值，**避免同时使用v-if**
+- computed和watch区分场景使用；computed适用于**计算成本较高**的场景，例如**数组排序、过滤**等；适用于需要在数据变化时**执行异步操作或者开销较大的操作**时。
+- 大数据列表和表格性能优化，虚拟列表，虚拟表格，**渲染可视区域内的数据**。
+- 防止内部泄露，组件销毁后把全局变量销毁，例如解除对**window和document**的引用
+- 图片懒加载，用户浏览到可视区域时再加载图片
+- 路由懒加载，**动态导入**const UserDetails = () => import('./views/UserDetails.vue')
+- 第三方插件按需加载，tree-shaking机制
+- 适当采用keep-alive缓存组件
+- 防抖、节流的运用
+- 服务端渲染SSR和预渲染
+
+## nextTick作用是什么？实现原理？
+
+## keep-alive使用场景和原理
+
+- keep-alive是vue的内置组件，用于缓存内部组件的实例。**避免创建组件带来的开销，保留组件状态。**
+- keep-alive具有**include**和**exclude**属性，控制哪些组件进入缓存，设置max属性，当缓存实例超过该数时vue会移除最久没有使用的组件缓存。
+- 具体的实现上，内部维护了一个**key数组**和**一个缓存对象**，key会自动生成。
+- keep-alive内部所有的嵌套组件都具有两个生命周期钩子函数，**activated**在首次挂载和从缓存中获取时触发，**deactivated**在从DOM移除进入缓存，以及组件卸载时触发
+
+```js
+<!-- 以英文逗号分隔的字符串 -->
+<KeepAlive include="a,b">
+  <component :is="view" />
+</KeepAlive>
+
+<!-- 正则表达式 (需使用 `v-bind`) -->
+<KeepAlive :include="/a|b/">
+  <component :is="view" />
+</KeepAlive>
+
+<!-- 数组 (需使用 `v-bind`) -->
+<KeepAlive :include="['a', 'b']">
+  <component :is="view" />
+</KeepAlive>
+// a,b为组件名称 
+
+```
+
+## Vue.set方法原理
