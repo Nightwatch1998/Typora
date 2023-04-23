@@ -397,3 +397,6 @@ Vue.set(object, propertyName, value)
 this.$set(this.obj, 'key', value)
 ```
 
+## 页面渲染
+
+每当一次事件循环结束之后，即一个宏任务执行完之后以及微任务队列被清空之后，浏览器就会进行一次更新渲染。
