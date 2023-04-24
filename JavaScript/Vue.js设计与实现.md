@@ -293,8 +293,119 @@ fuction ref(val){
 
 ### 异步组件与函数式组件
 
+#### 异步组件的实现原理
+
+- 封装defineAsyncComponent函数，判断是否加载成功
+- 加载器、超时时间、并可以指定出错是渲染的模块。把错误对象传递到Error组件中
+- loading组件，delay后加载loading
+- 重试机制，为用户提供重试的能力
+
+#### 函数式组件
+
+函数式组件本质就是一个普通函数，返回值是一个虚拟DOM
+
 ### 内建组件和模块
+
+#### KeepAlive组件
+
+**本质是缓存管理，加上特殊的挂载、卸载逻辑。**
+
+在内部组件的vnode对象上添加一些属性，以便渲染器能够据此执行特定的逻辑。
+
+- shouldKeepAlive：渲染之卸载内部组件时可以判断是否需要被keepalive
+- keepAliveInstance：便于卸载时访问失活函数
+- KeptAlive：标记已经被缓存
+
+include与exclude
+
+缓存管理：Map
+
+- map的键是组件选项对象，vnode.type，值是vnode对象，虚拟DOM
+- 设置缓存的阈值，超出时修剪，策略**最新一次访问**
+
+#### Teleport组件
+
+**将执行内容渲染到特定容器中，不受DOM层级的限制。**
+
+```js
+const Teleportt = {
+	__isTeleport: true,
+    process(n1,n2,container,anchor){
+        // 渲染逻辑
+    }
+}
+```
+
+#### Transition组件
+
+帮助制作基于状态变化的过渡和动画
+
+核心原理：
+
+- 当DOM元素被挂载时，将动效附加在该DOM上
+- 当DOM元素被卸载时，不立即卸载，而是等到附加在DOM上的动效执行完成后在卸载
 
 ## 编译器
 
+### 编译器核心技术概览(3步)
+
+完整的编译：词法分析、语法分析、语义分析、中间代码生成、优化、目标代码生成
+
+vue的编译是DSL，将vue编译为渲染函数
+
+vue的编译：模板、词法分析、语法分析、**模板AST、Transformer、JS AST**、代码生成、渲染函数
+
+模板AST：
+
+- type区分不同节点
+- 标签节点的子节点在children中
+- 属性和指令在props数组
+- 不同节点的对象属性不同
+
+语义分析：
+
+- 检查v-else是否存在对应的v-if
+- 分析属性值是否是静态的
+
+```js
+const templateAST = parse(template)
+const jsAST = transform(templateAST)
+const code = generate(jsAST)
+```
+
+#### parser的实现原理与状态机
+
+解析器逐个读取字符串模板的字符，根据一定规则，切割成一个个**token**
+
+**有限状态自动机**，随着字符的输入，解析器会在不同状态间迁移，将模板解析为一个一个的token
+
+#### 构造模板AST
+
+递归下降算法，
+
+栈+token列表可以实现
+
+#### AST的转换
+
+- 深度优先遍历
+- 对节点的操作和访问解耦，存放在**上下文context**中
+  - currentNode： 当前正转换的节点
+  - childIndex：当前节点在父节点的children中的位置索引
+  - parent：用来存储当前转换的父节点
+- 元素的进入与退出
+
+#### 生成JS AST
+
+函数声明语句：
+
+- id 函数名称
+- params：函数的参数
+- body:函数体
+
+### 解析器
+
+### 编译优化
+
 ## 服务端渲染
+
+### 同构渲染
