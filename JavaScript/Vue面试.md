@@ -147,7 +147,9 @@ vm.$set(vm.items, indexOfItem, newValue)
 
 ## v-model语法糖原理
 
-v-model本质就是value+input方法的语法糖，根据不同的标签生成不同的事件和属性
+v-modal是vue.js的一个指令，用于在表单元素和组件实现双向数据绑定。
+
+v-model本质就是value+input方法的语法糖，根据不同的标签生成不同的v-on事件和v-bind属性
 
 - text/textarea输入框：value属性和input事件
 - checkbox复选框：checked属性和change事件
@@ -204,7 +206,7 @@ function reactive(obj) {
 
 ```
 
-## vue2、vue3渲染器的diff算法(看源码补充)
+## vue2、vue3渲染器的diff算法
 
 **diff算法：**
 
