@@ -56,3 +56,106 @@ getComponent().then(component=>{
 })
 ```
 
+### 预获取prefetch
+
+```js
+import(/* webpackPrefetch: true */ './path/to/LoginModal.js');
+```
+
+### 预加载preload
+
+```js
+import(/* webpackPreload: true */ 'ChartingLibrary');
+```
+
+## 缓存
+
+- 输出文件的文件名，用hash表示文件名
+
+```js
+filename: '[name].[contenthash].js',
+```
+
+- 将runtime代码拆分为一个单独的chunk
+
+```js
+  optimization:{
+    runtimeChunk:'single'
+  }
+```
+
+- 模块标识符,vendor前后构建hash不变
+
+```js
+moduleIds: 'deterministic',
+```
+
+## 创建一个Library（需要了看）
+
+## 构建性能(内容较多，专门看)
+
+## 模块热替换
+
+- 常用配置(推荐)
+
+```js
+  const path = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+  module.exports = {
+    entry: {
+       app: './src/index.js',
+      print: './src/print.js',
+    },
+    devtool: 'inline-source-map',
+    devServer: {
+      static: './dist',
+     hot: true,
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        title: 'Hot Module Replacement',
+      }),
+    ],
+    output: {
+      filename: '[name].bundle.js',
+      path: path.resolve(__dirname, 'dist'),
+      clean: true,
+    },
+  };
+```
+
+- 指定入口的方式
+
+```js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require("webpack")
+
+module.exports = {
+  // mode:'development',//开发环境
+  entry: { //入口文件
+    app: './src/index.js',
+    hot: 'webpack/hot/dev-server.js',
+    client: 'webpack-dev-server/client/index.js?hot=true&live-reload=true'
+  },
+  devtool:'inline-source-map',
+  devServer:{
+    static:'./dist',
+    hot:false,
+    client:false
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      title:"Hot Module Replacement"
+    }),
+    new webpack.HotModuleReplacementPlugin()
+  ],
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname,'dist'),
+    clean:true //每次构建清理dist目录旧文件
+  }
+}
+```
+
