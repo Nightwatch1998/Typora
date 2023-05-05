@@ -159,3 +159,210 @@ module.exports = {
 }
 ```
 
+- css热更新
+
+```js
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  mode:'development',
+  entry: {
+    app: './src/index.js',
+    print: './src/print.js',
+  },
+  devtool: 'inline-source-map',
+  devServer: {
+    static: false,
+    hot: true,
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:['style-loader','css-loader']
+      }
+    ]
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Hot Module Replacement',
+    })
+  ],
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+  },
+};
+```
+
+## Tree shaking
+
+- package.json中配置sideEffects
+
+```json
+{
+  "name": "your-project",
+  "sideEffects": ["./src/some-side-effectful-file.js", "*.css"]
+}
+```
+
+- 将函数调用标记为无副作用
+
+```js
+/*#__PURE__*/ double(55);
+```
+
+## 环境配置
+
+### webpack.common.js
+
+```js
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry: {
+    app: './src/index.js',
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Production',
+    })
+  ],
+  output: {
+    filename: '[name].[contenthash].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+  }
+};
+```
+
+### webpack.dev.js
+
+```js
+const {merge} = require('webpack-merge')
+const common = require("./webpack.common.js")
+
+module.exports = merge(common,{
+  mode:'development',
+  devtool:'inline-source-map',
+  devServer:{
+    static:'./dist'
+  }
+})
+```
+
+### webpack.prod.js
+
+```js
+const {merge} = require('webpack-merge')
+const common = require("./webpack.common.js")
+
+module.exports = merge(common,{
+  mode:'production',
+  devtool:'source-map'
+})
+```
+
+## Shimming 预置依赖
+
+- 预置全局依赖，如果在多个文件中使用了，将会比较有用
+
+```js
+const path = require('path');
+const webpack = require('webpack')
+
+module.exports = {
+  entry: {
+    app: './src/index.js',
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      _:'lodash'
+    })
+  ],
+  output: {
+    filename: '[name].[contenthash].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+  }
+};
+```
+
+- 配置数组路径，按需引入
+
+```js
+const path = require('path');
+const webpack = require('webpack')
+
+module.exports = {
+  mode:'development',
+  entry: {
+    app: './src/index.js',
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      join:['lodash','join']
+    })
+  ],
+  output: {
+    filename: '[name].[contenthash].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+  }
+};
+```
+
+## TypeScript
+
+### tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
+    "jsx":"react",
+    "allowJs": true,
+    "moduleResolution": "node"
+  }
+}
+```
+
+### webpack.config.js
+
+```js
+const path = require('path');
+const webpack = require('webpack')
+
+module.exports = {
+  mode:'development',
+  entry: {
+    app: './src/index.ts',
+  },
+  devtool:"inline-source-map",
+  module:{
+    rules:[
+      {
+        test:/\.tsx?$/,
+        use:'ts-loader',
+        exclude:/node_modules/
+      }
+    ]
+  },
+  resolve:{
+    extensions:['.tsx','.ts','.js']
+  },
+  output: {
+    filename: '[name].[contenthash].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+  }
+};
+```
+
