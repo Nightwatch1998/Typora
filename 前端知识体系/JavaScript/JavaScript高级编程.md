@@ -166,3 +166,153 @@ function factorial(num){
 
 ## BOM
 
+### window对象
+
+window既是JS访问浏览器窗口的接口，优势ECMAScript规定的global对象。
+
+- **全局作用域**声明的变量、函数会成为window对象的属性和方法
+- **框架**存储在frames集合中，每个框架都拥有自己的window对象
+  - top对象指向最外层的**框架**
+  - parent指向父级框架
+- 窗口位置
+
+```
+screenLeft,screenTop，(IE、Safari、Opera、Chrome)相对于屏幕左边和右边的位置
+ScreenX,ScreenY,(Firefox、Safari、Chrome)
+```
+
+- 窗口大小
+
+```
+outerWidth、outerHeight返回浏览器窗口本身的值
+innerWidth、innerHeight返回页面视图区的值
+document.doucmentElement.client(Left|Height|Width|Top)返回页面视口信息，(兼容IE)
+```
+
+- 导航和打开窗口
+
+```
+window.open()
+```
+
+- 系统对话框
+
+```
+alert() //弹出信息
+confirm() // 确认窗口
+prompt() // 提示窗口
+```
+
+### location对象
+
+location对象保存了当前窗口加载的文档的信息
+
+- hash：URL中的hash
+- host：服务器名称+端口号
+- hostname：不带端口号的服务器名称
+- href：返回当前加载页面的完整URL
+- port：端口号
+- protocol：协议
+
+改变浏览器位置：
+
+```
+location.assgin()
+window.location = ""
+location.href = "" //最常用
+location.hash = "" //修改属性
+```
+
+### navigator对象*
+
+用于检测显示网页的浏览器类型
+
+- 检测插件：plugins
+
+### screen对象*
+
+用于表明客户端显示器的能力，大多数属性为只读
+
+### history对象
+
+history对象保存用户上网的历史记录
+
+```js
+history.go(-1) // 后退一页
+history.go(1) // 前进一页
+history.forward()
+history.back()
+```
+
+## 客户端检测
+
+### 能力检测
+
+```js
+// 检测属性是否存在
+if(object.propertyInQuestion){
+	// 使用object.propertyInQuestion
+}
+```
+
+```
+// 检测对象是否可排序
+function isSortable(object){
+	return typeof object.sort == "function"
+}
+```
+
+### 怪癖检测
+
+浏览器的一些BUG
+
+### 用户代理检测
+
+#### userAgent字符串的历史
+
+- 早期的浏览器 ：语言、平台、加密类型
+- Netscape Navigator3和Internet Explorer3,Mozilla/2.0
+- NetScape Communicator 4和IE4~IE8，Mozilla/4.0
+- **Geoko是FireFox的呈现引擎**
+- **Webkit是Safari的呈现引擎**
+- Chrome浏览器以WebKit作为呈现引擎
+- linux下的Konqueror，使用KHTML开源呈现引擎
+- Opera正确地标识了自身及其版本号
+- IOS和Android的默认浏览器都基于Webkit
+
+#### userAgent检测
+
+- 识别呈现引擎：ie、gecko、webkit、khtml
+- 识别浏览器：ie、firefox、safari、chrome、opera
+- 识别平台：Windows、Mac和Unix
+- 识别windows操作系统版本号
+- 识别移动设备
+- 识别游戏系统
+
+## DOM
+
+### DOM1
+
+1998年10月DOM1级规范成为W3C标准
+
+9种节点层次
+
+DOM操作技术：
+
+- 动态脚本
+- 动态样式
+- 创建表格
+- 使用NodeList
+
+### DOM扩展
+
+- jQuery的核心就是通过CSS选择符查询DOM文档取得元素的引用
+- 元素遍历
+- H5定义了大量的JS API
+  - 焦点管理
+  - 设置字符集
+  - 滚动页面
+
+### DOM2和DOM3
+
+扩展DOM API，满足操作XML的所有需求
