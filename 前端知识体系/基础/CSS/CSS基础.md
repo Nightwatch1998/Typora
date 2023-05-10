@@ -233,6 +233,43 @@ tr:nth-child(even) {background-color: #f2f2f2;}
 | collapse | 表格中使用可删除一行或一列 |
 | inherit  | 继承父元素                 |
 
+#### grid布局
+
+基本概念：网格行、网格列、网格间隙、网格线
+
+**grid容器**：
+
+- grid-template-columns 定义列数和每列宽度，auto为相同宽度
+- grid-template-rows 定义行数和每行高度，auto为相同高度
+- justify-content 容器内对齐整个网格
+- align-content 垂直对齐
+
+**grid元素**：
+
+- grid-column 定义项目在哪一列
+
+```css
+grid-column: 1 / 5; //1-5列之间
+grid-column: 1 / span 3; //第一列开始跨越三列
+```
+
+- grid-row 定义项目在哪一行
+
+```css
+grid-row: 1 / 4; // 1-4行之间
+grid-row: 1 / span 2; // 第一行开始跨越两行
+```
+
+- grid-area 范围简写:行开始、列开始、行结束、列结束
+
+```css
+grid-area: 1 / 2 / 5 / 6;
+grid-area：myArea;//为网格项目分配名称
+grid-template-areas: 'myArea myArea myArea myArea myArea';//在容器中使用
+```
+
+
+
 #### position定位
 
 - static 正常文档流
@@ -724,3 +761,97 @@ div {
 ```
 
 ### 多列
+
+- column-count 规定元素被划分的列数
+- column-gap 规定列之间的间隔
+- column-rule 分割线样式
+
+### 变量
+
+var()函数,用于插入CSS变量的值，复用颜色，易于修改
+
+```css
+/*全局变量*/
+:root {
+  --blue: #1e90ff;
+  --white: #ffffff;
+}
+
+.container {
+  color: var(--blue);
+  background-color: var(--white);
+  padding: 15px;
+}
+
+button {
+  --blue: #0000ff;
+  background-color: var(--white);
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  padding: 5px;
+}
+```
+
+可以使用JS访问CSS变量
+
+### 媒体查询
+
+CSS2引入了@media规则
+
+**媒体类型**：
+
+| 值     | 描述                       |
+| ------ | -------------------------- |
+| all    | 所有媒体类型               |
+| print  | 打印机                     |
+| screen | 计算机屏幕、平板、智能手机 |
+| speech | 屏幕阅读器                 |
+
+媒体查询语法：
+
+```css
+@media not|only mediatype and (expressions) {
+  CSS-Code;
+}
+```
+
+实例
+
+```css
+@media screen and (min-width:480px){
+    body {
+        background-color:lightgreen;
+    }
+}
+```
+
+
+
+### flexbox
+
+flex容器属性：
+
+- flex-direction 堆叠方向，默认从左到右
+- flex-wrap  是否换行
+- felx-flow 是上面两个属性的简写
+- justify-content 主轴对齐
+  - center 居中
+  - flex-start 从容器开始
+  - flex-end 从容器结束
+  - space-around 前后、之间有空格
+  - space-between 之间有空格
+- align-items 次轴对齐
+  - center 居中
+  - flex-start
+  - flex-end
+  - baseline 文本基线对齐
+- align-content 多行的时候 纵向对齐方式
+
+子项目属性：
+
+- order flex项目的顺序
+- flex-grow 相对其他项目增长多少
+- flex-shrink 相对其他项目收缩多少
+- flex-basis flex项目初始长度
+- flex
+- align-self 规定单个项目的对齐方式
