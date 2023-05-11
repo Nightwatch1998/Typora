@@ -586,3 +586,43 @@ type Partial<T> = {
 }
 ```
 
+## symbol
+
+可以与计算出的属性名声明相结合
+
+```typescript
+const getClassNameSymbol = Symbol();
+
+class C {
+    [getClassNameSymbol](){
+       return "C";
+    }
+}
+
+let c = new C();
+let className = c[getClassNameSymbol](); // "C"
+```
+
+内置的symbols:
+
+- `Symbol.hasInstance`被`instanceof`运算符调用
+- `Symbol.iterator` 被`for-of`调用
+- `Symbol.(match|replace|search|split)` 正则处理字符串
+
+## 模块
+
+
+
+## 命名空间
+
+## 模块解析
+
+## 声明合并
+
+## JSX
+
+## 装饰器
+
+## Mixis
+
+## 三斜线指令
