@@ -611,11 +611,181 @@ let className = c[getClassNameSymbol](); // "C"
 
 ## 模块
 
+模块在自身作用域执行，定义在模块里的变量、函数、类在模块外部是不可见的，除非export导出
 
+为了支持CommonJS和AMD的exports，使用`export =`导出模块，
+
+必须用`import module = require("module")`导入模块
+
+### 导出
+
+```typescript
+//ZipCodeValidator.ts
+export interface StringValidator {
+    isAcceptable(s: string): boolean
+}
+export const numberRegexp = /^[0-9]+$/;
+class ZipCodeValidator implements StringValidator {
+    isAcceptable(s: string): boolean {
+        return s.length === 5 && numberRegexp.test(s)
+    }
+}
+export {ZipCodeValidator};
+export {ZipCodeValidator as mainValidator}
+
+
+
+// ParseIntBasedZipCodeValidator.ts
+export class ParseIntBasedZipCodeValidator {
+    isAcceptable(s: string){
+        return s.length === 5 && parseInt(s).toString()===s
+    }
+}
+// 重新导出 扩展其他模块，并不会在当前模块导入那个模块
+export {ZipCodeValidator as RegExpBasedZipCodeValidator} from "./ZipCodeValidator"
+
+// 默认导出 JQuert.d.ts
+export default $;
+```
+
+### 导入
+
+```typescript
+// 导入模块的部分导出内容
+import {ZipCodeValidator} from "./ZipCodeValidator"
+let myValidator = new ZipCodeValidator()
+
+// 使用别名
+import {ZipCodeValidator as ZCV} from "./ZipCodeValidator"
+let myValidator = new ZCV();
+
+// 将整个模块导入到一个变量
+import * as validator from "./ZipCodeValidator"
+let myValidator = new validator.ZipCodeValidator()
+
+// 导入默认导出，不需要括号
+import $ from "Jquery"
+```
+
+### 生成模块代码
+
+CommonJS和AMD模块都有一个`exports`变量，这个变量包含了模块的所有导出内容
+
+- **痛点**：`export default`并不兼容`exports`
+
+- **解决办法**：提供`export=`语法导出模块，并用`import module = require("module")`导入模块
+
+### declare关键字
+
+declare用于告诉编译器某个标识符的类型信息，帮助编译器进行类型检查
+
+通常在一个独立的`.d.ts`文件中定义
+
+```typescript
+// 声明全局变量、全局函数
+declare const myVar:string;
+declare function myFunc(str:string):void;
+
+// 声明模块和命名空间
+declare module "my-module"{}
+declare namespace MyNamespace {}
+
+// 声明类、接口、类型别名
+declare class MyClass {}
+declare interface MyInterface {}
+
+declare type MyType = string | number
+```
+
+有了模块的类型声明文件
+
+```typescript
+/// <reference path="node.d.ts"/>
+// import * as URL from "url";
+import url = require("url")
+let myUrl = URL.parse("http://www.typescriptlang.org");
+```
+
+### 创建模块结构指引
+
+- 尽可能在顶层导出
+- 导出单个`class`或`function`，使用`export default`
+- 导出多个对象，放在顶层导出
+- 明确列出导入的名字
+- 导出大量内容的时候使用命名空间导出
+- 模块里不要使用命名空间
 
 ## 命名空间
 
+命名空间是TS中组织代码的方式，将相关代码封装在一个单独的命名空间中。可以定义类、接口、函数等等，避免**命名冲突**和**代码污染**问题。
+
+`namespace`关键字和`module`关键字：
+
+- TS早期使用`module`关键字定义内部模块，TS2.0之后推荐使用`namespace`定义命名空间
+- `namespace`适用于不支持ES6模块的环境
+- ES6环境使用`import`、`export`定义模块即可
+
+### 分离到多个文件
+
+尽管在不同的文件，仍然是同一个命名空间。使用引用标签告诉编译器文件之间的关联。
+
+**优点是不用在文件之间引入依赖关系**
+
+### 别名
+
+```typescript
+namespace Shapes {
+    export namespace Polygons {
+        export class Triangle { }
+        export class Square { }
+    }
+}
+
+import polygons = Shapes.Polygons;
+let sq = new polygons.Square(); // Same as "new Shapes.Polygons.Square()"
+```
+
+
+
 ## 模块解析
+
+模块解析是指编译器在查找导入模块内容时所遵循的流程
+
+- 相对导入：解析时相对于导入它的文件，**不能是外部的模块声明**，通常用于自己写的模块
+- 非相对模块：相对于baseUrl或路径映射进行解析，可以使外部模块声明
+
+模块解析策略：使用`--moduleResolution`标记
+
+- nodejs解析策略
+  - 相对模块
+    1. 检查目标模块`/root/src/moduleB.js`是否存在
+    2. 检查`/root/src/moduleB`是否包含`package.json`，并且指定了`main`模块
+    3. 检查`/root/src/moduleB`是否包含`index.js`文件
+  - 非相对模块
+    - 在`node_modules`目录查找，按照相对模块的**3步**
+    - 递归向上查找`node_modules`
+- classic策略(ts旧版解析策略)： 相对模块先查找`.ts`在查找`.d.ts`，非相对模块会递归向上查询
+
+### typescript解析模块
+
+模仿NodeJs解析策略，添加了.ts、.tsx、.d.ts：
+
+1. `/root/src/moduleB.ts`
+2. `/root/src/moduleB.tsx`
+3. `/root/src/moduleB.d.ts`
+4. `/root/src/moduleB/package.json` (如果指定了`"types"`属性)
+5. `/root/src/moduleB/index.ts`
+6. `/root/src/moduleB/index.tsx`
+7. `/root/src/moduleB/index.d.ts`
+
+### 路径映射
+
+- 配置paths指定对baseurl的映射，可以为多个
+- 利用rootDirs指定虚拟目录
+
+### 跟踪模块解析
+
+使用`--traceResolution`调用编译器。
 
 ## 声明合并
 
