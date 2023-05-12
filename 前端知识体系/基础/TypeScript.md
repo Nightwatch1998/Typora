@@ -745,8 +745,6 @@ import polygons = Shapes.Polygons;
 let sq = new polygons.Square(); // Same as "new Shapes.Polygons.Square()"
 ```
 
-
-
 ## 模块解析
 
 模块解析是指编译器在查找导入模块内容时所遵循的流程
@@ -789,10 +787,155 @@ let sq = new polygons.Square(); // Same as "new Shapes.Polygons.Square()"
 
 ## 声明合并
 
-## JSX
+编译器针对两个同名的声明，合并为单一的声明
 
-## 装饰器
+- **接口合并**后，后面的接口具有更高的优先级，单一字符串字面量会提升
+- 命名空间的合并
+  - 模块导出的同名接口会合并
+  - 命名空间的导出成员会被添加到已存在的模块里
+- 命名空间与类、函数、枚举合并可以进行扩展
+- 模块扩展
+
+```typescript
+// observable.ts stays the same
+// map.ts
+import { Observable } from "./observable";
+declare module "./observable" {
+    interface Observable<T> {
+        map<U>(f: (x: T) => U): Observable<U>;
+    }
+}
+Observable.prototype.map = function (f) {
+    // ... another exercise for the reader
+}
+
+
+// consumer.ts
+import { Observable } from "./observable";
+import "./map";
+let o: Observable<number>;
+o.map(x => x.toFixed());
+```
+
+## JSX(学习React后补充)
+
+## 装饰器(实验性)
+
+通过元编程的方式为类的声明提供标注
+
+**原理**：运行时，装饰器被解析成特殊的函数调用，会被添加到原型链或作为闭包的一部分被保存，当运行时访问到被装饰的代码结构时，这些特殊的函数就会被调用。
+
+tsconfig.json
+
+```json
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "experimentalDecorators": true //启用装饰器
+    }
+}
+```
+
+**装饰器组合**：从上至下依次求值，求值的结果作为函数，由下至上依次调用
+
+```typescript
+@f @g x //同一行
+
+// 多行
+@f
+@g
+x
+```
+
+### 类装饰器
+
+类装饰器会在运行时被当做函数调用，类的**构造函数是其唯一参数**
+
+如果类装饰器返回一个值， 这个值会被用来**替换原来的类声明**
+
+```typescript
+@sealed
+class Greeter {
+    greeting: string;
+    constructor(message: string) {
+        this.greeting = message;
+    }
+    greet() {
+        return "Hello, " + this.greeting;
+    }
+}
+
+function sealed(constructor: Function) {
+    Object.seal(constructor); // 密封构造器
+    Object.seal(constructor.prototype); // 密封构造器的原型
+}
+```
+
+### 方法装饰器
+
+三个参数：
+
+- 对于静态对象来说是类的构造函数，实例成员是类的原型对象
+- 成员名字
+- **成员的属性描述符**
+
+如果返回一个值，这个值会作为方法的属性描述符
+
+```typescript
+class Greeter {
+    greeting: string;
+    constructor(message: string) {
+        this.greeting = message;
+    }
+
+    @enumerable(false)
+    greet() {
+        return "Hello, " + this.greeting;
+    }
+}
+
+function enumerable(value: boolean) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        descriptor.enumerable = value;
+    };
+}
+```
+
+### 访问器装饰器
+
+和方法的类似
+
+### 属性装饰器
+
+用于监视类中是否声明了某个名字的属性
+
+2个参数：
+
+- 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+
+- 成员的名字
+
+### 参数装饰器
+
+监视方法的参数是否被传入
+
+- 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+- 成员的名字。
+- 参数在函数参数列表中的索引。
+
+参数装饰器的返回值会被忽略
 
 ## Mixis
 
+将一个类混入另一个类，需要手写混入函数
+
 ## 三斜线指令
+
+包含单个XML标签的单行注释，注释的内容会作为**编译器指令**使用
+
+```typescript
+/// <reference path="..." />  用于声明文件间的依赖
+/// <reference types="..." /> 用于引用一个模块的声明文件，写一个.d.ts时使用
+/// <reference no-default-lib="true"/> 标记为默认库
+```
+
