@@ -44,9 +44,9 @@ useDebugValue(value, format?)
 const deferredValue = useDeferredValue(value)
 ```
 
-延迟获取最新的状态值，以实现更平滑的用户界面更新
+延迟获取最新的状态值，以实现更平滑的用户界面更新，自带防抖的
 
-配合`<Suspense>`使用
+在`<Suspense>`中使用deferredValue
 
 ### useEffect
 
@@ -248,12 +248,125 @@ function onRender(id, phase, actualDuration, baseDuration, startTime, commitTime
 </Suspense>
 ```
 
+fallback通常用于渲染更新前的loading组件
 
+react在后台会先渲染value，再渲染deferedValue
 
 ## API
 
+### createContext
+
+创建上下文
+
+### forwardRef
+
+传递ref给自定义组件
+
+```react
+import { forwardRef } from 'react';
+// 子组件
+const MyInput = forwardRef(function MyInput(props, ref) {
+  const { label, ...otherProps } = props;
+  return (
+    <label>
+      {label}
+      <input {...otherProps} ref={ref} />
+    </label>
+  );
+});
+
+// 父组件
+function Form() {
+  const ref = useRef(null);
+
+  function handleClick() {
+    ref.current.focus();
+  }
+
+  return (
+    <form>
+      <MyInput label="Enter your name:" ref={ref} />
+      <button type="button" onClick={handleClick}>
+        Edit
+      </button>
+    </form>
+  );
+}
+```
+
+### lazy
+
+实现懒加载
+
+```react
+import { lazy } from 'react';
+
+const MarkdownPreview = lazy(() => import('./MarkdownPreview.js'));
+```
+
+### memo
+
+如果组件的输入没有发生变化，则跳过重新渲染
+
+```react
+import { memo } from 'react';
+
+const SomeComponent = memo(function SomeComponent(props) {
+  // ...
+});
+```
+
+参数：
+
+- Component ：需要缓存的组件
+- arePropsEqual：接受前一个props和新的props，返回比较的值，指定比较函数
+
+### startTransition
+
+非阻塞地更新state
+
+```js
+import { startTransition } from 'react';
+
+function TabContainer() {
+  const [tab, setTab] = useState('about');
+
+  function selectTab(nextTab) {
+    startTransition(() => {
+      setTab(nextTab);
+    });
+  }
+  // ...
+}
+```
+
+
+
 # React DOM
+
+
 
 ## 组件
 
 ## API
+
+### createProtal
+
+将组件的渲染结果插入到DOM树的其他位置
+
+```js
+<div>
+  <SomeComponent />
+  {createPortal(children, domNode, key?)}
+</div>
+```
+
+### flushSync
+
+同步刷新组件的渲染
+
+### createRoot
+
+将根组件渲染到HTML文档的特定位置
+
+### unmountComponentAtNode
