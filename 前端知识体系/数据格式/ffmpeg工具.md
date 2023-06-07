@@ -74,20 +74,4 @@ aspect 指定横纵比
 
 ### ffmpeg+nginx+video,rtsp转rtmp
 
-1. 下载视频流测试工具[**vlc**](https://get.videolan.org/vlc/3.0.6/win64/vlc-3.0.6-win64.exe)
-2. 安装nginx，[**下载地址**](http://nginx-win.ecsds.eu/download/)，选择nginx 1.7.11.3 Gryphon.zip
-3. 下载nginx rtsp模块，[**github仓库**](https://github.com/illuspas/nginx-rtmp-win32)，这里是封装后的nginx.exe，配置文件包含了rtmp模块
-4. 下载ffmpeg版本号 gcc7.3.0
-5. 使用ffmpeg命令
-
-```
-// 转rtmp(失败了)
-ffmpeg -i "rtsp流路径" -vcodec copy -acodec copy -f flv "rtmp://127.0.0.1:1935/live/"
-
-// 转hls
-ffmpeg -i "rtsp流路径" -c:v copy -c:a aac -hls_time 2 -hls_list_size 6 -f hls output.m3u8
-```
-
-
-
 ### ffmpeg+video,rtsp转hls
