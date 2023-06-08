@@ -184,7 +184,7 @@ vite
 - 即时的模块热更新
 - 真正的按需编译
 
-## 模块化(补充)
+## 模块化
 
 模块化的好处：
 
@@ -202,20 +202,66 @@ vite
 
 ### CommonJS
 
-nodejs采用CommonJS规范。每个文件一个模块，有自己的作用域。文件里定义的变量，函数，类都是私有的。对其他文件不可见。
+CommonJS最初是为Nodejs环境设计的，也被广泛用于浏览器端的模块化开发。每个文件一个模块，有自己的作用域。文件里定义的变量，函数，类都是私有的。对其他文件不可见。
 
-基本语法：
+它有四个重要的环境变量为模块化提供支持：`module、exports、require、global`
 
-- 暴露模块：`module.exports = value`或`exports.xxx = value`
-- 引入模块：`require(xxx)`,如果是第三方模块，xxx为模块名；如果是自定义模块，xxx为模块文件路径
+CommonJS用同步的方式加载模块。在服务端，模块存在本地磁盘，读取很快。浏览器端应该使用异步加载。
 
-模块加载机制：引入的是模块里值的拷贝，**同步加载**
+- 使用module.exports
 
-### ES6
+```js
+// 定义math.js
+var basicNum = 0;
 
-ES6模块的设计思想是尽量静态化，使得编译时就能确定模块的依赖关系
+function add(a,b){
+    return a + b
+}
+// module.exports语句只能有一个，后者会覆盖前面的
+module.exports = { //这里写需要向外暴露的变量
+    add,
+    basicNum
+}
 
-基本语法：
+// 导入
+var math = require('./math');
+math.add(2,5);
+
+// 也可解构访问
+const { add, basicNum } = require('./math')
+add(2,5)
+```
+
+- exports对象是module.exports的一个引用，可以向exports添加属性和方法
+
+```js
+// 导出属性
+exports.foo = 'bar';
+
+// 导出方法
+exports.add = function(a, b) {
+  return a + b;
+};
+
+// 解构导入
+const { add, foo } = require('./math')
+add(1,2)
+```
+
+不同的导出方式，导入时是一样的。
+
+不建议混用
+
+### ES6 Module
+
+ES6模块的设计思想是尽量静态化,模块不是对象，使得编译时就能确定模块的依赖关系，同时无法实现条件加载。导入本地模块不能省略.js后缀。
+
+使用ES6模块，需要在package.json配置“type”：“module”
+
+主要由两个命令构成:export和import
+
+- export对象语法：
+
 
 ```js
 /** 定义模块 math.js **/
@@ -224,45 +270,128 @@ var add = function (a, b) {
     return a + b;
 };
 export { basicNum, add };
+
 /** 引用模块 **/
-import { basicNum, add } from './math';
+import { basicNum, add } from './math.js';
 function test(ele) {
     ele.textContent = add(99 + basicNum);
 }
 ```
 
-### AMD
+- export default语法
 
-浏览器端一般采用AMD规范
+```js
+//定义输出
+export default { basicNum, add };
 
-基本语法：
+//引入
+import math from './math.js';
+function test(ele) {
+    ele.textContent = math.add(99 + math.basicNum);
+}
+```
+
+### AMD与require.js
+
+AMD（Asynchronous Module Definition）规范采用**异步方式**加载模块，加载完立即执行,依赖前置，提前执行。
+
+浏览器端一般采用AMD规范，加载AMD模块需要先引入require.js
+
+define函数来自于require.js
 
 ```js
 // 定义没有依赖的模块
 define(function(){
-   return 模块
+   return {
+       foo: "bar"
+   }
 })
 
-// 定义有依赖的模块
+// 定义有依赖的模块，第一个参数是依赖模块的数组
 define(['module1', 'module2'], function(m1, m2){
-   return 模块
+   return {
+       baz: function(){
+           // 方法
+       }
+   }
 })
 
-// 
-require(['module1', 'module2'], function(m1, m2){
-   使用m1/m2
+// 加载模块，第一个参数是加载的模块标识符
+require(['module1','module2'], function(m1, m2){
+    // 使用模块
+   console.log(m1,m2)
 })
 ```
 
-### UMD(补充)
+### CMD与sea.js
 
-### System.JS(补充)
+CMD类似于AMD，**依赖就近，但是延迟执行**。可以通过require动态加载依赖项。
+
+define来自sea.js，require.js也可以处理cmd模块
+
+```js
+// 定义模块
+define(function(require, exports, module) {
+  // 通过require函数加载依赖模块
+  var dependency1 = require('dependency1');
+  var dependency2 = require('dependency2');
+
+  // 模块代码
+  // 可以使用依赖模块dependency1和dependency2
+  var foo = 'bar';
+  var baz = function() {
+    // 模块方法
+  };
+
+  // 使用exports对象导出模块内容
+  exports.foo = foo;
+  exports.baz = baz;
+});
+
+// 加载模块
+require(['myModule'], function(myModule) {
+  // 使用导入的模块
+  console.log(myModule.foo);  // 输出: 'bar'
+  myModule.baz();
+});
+```
+
+### UMD
+
+UMD（Universal Module Definition）模块是一种通用的模块定义规范，使模块能够在不同的浏览器环境运行，包括浏览器、Nodejs和其他支持模块化的环境。
+
+可以理解为是一种兼容性的模块
+
+```js
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD环境
+    define(['dependency1', 'dependency2'], factory);
+  } else if (typeof exports === 'object' && typeof module === 'object') {
+    // CommonJS环境
+    var dep1 = require('dependency1');
+    var dep2 = require('dependency2');
+    module.exports = factory(dep1, dep2);
+  } else {
+    // 全局变量环境
+    root.ModuleName = factory(root.Dependency1, root.Dependency2);
+  }
+}(this, function (dep1, dep2) {
+  // 模块的实现
+  return {
+    // 导出的模块内容
+  };
+}));
+```
+
+
 
 ### ES6模块与CommonJS模块的差异
 
-- CommonJS模块输出的是值的拷贝，ES6输出的是引用
-- CommonJS模块是运行时加载，ES6是静态编译
-- CommonJS顶级变量和函数都是公有的，ES6顶级变量和函数私有
+- CommonJS模块输出的是**值的拷贝**，ES6输出的是**引用**
+- CommonJS模块是运行时加载，ES6是编译时加载，所以无法条件加载
+- CommonJS顶级变量和函数都是**公有的**，ES6顶级变量和**函数私有**
+- CommonJS导入本地模块可以省略.js后缀，ES6不可以。
 
 ## 性能优化
 
