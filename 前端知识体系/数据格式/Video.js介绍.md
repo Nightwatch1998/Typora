@@ -26,7 +26,9 @@ Video.js是一个开源的H5播放库，用于在网页上播放视频
 
 data-setup是一个json字符串，表示videojs的options选项
 
-#### 嵌入video标签
+#### 引入方式
+
+- 嵌入video标签（推荐）
 
 ```
 <!-- via data-setup -->
@@ -41,7 +43,7 @@ data-setup是一个json字符串，表示videojs的options选项
 const player = videojs('vid1', {});
 ```
 
-#### player div接收
+- player div接收
 
 ```html
 <!-- via data-setup -->
@@ -60,7 +62,7 @@ const player = videojs('vid1', {});
 const player = videojs('vid1', {});
 ```
 
-#### 嵌入video-js标签
+- 嵌入video-js标签
 
 ```
 <!-- via data-setup -->
@@ -75,6 +77,90 @@ const player = videojs('vid1', {});
 const player = videojs('vid1', {});
 ```
 
+#### 引入样式
+
+在main.js中引入，否则使用video.js后会出现一大堆调试面板
+
+```js
+import "video.js/dist/video-js.css"
+```
+
+
+
+#### options
+
+options属性包括video原生属性，和扩展属性
+
+- 直接在原生的video标签中使用
+- 在video标签中使用data-setup属性
+- 作为videojs函数的第二个参数使用
+
 ### 配合框架使用
 
 配合Angular、Vue、React使用
+
+#### 在vue中使用
+
+muted="muted"可禁用浏览器的默认行为，用户得交互一次才能播放视频
+
+```vue
+<template>
+  <video :id="playerID" class="video-js" muted="muted"></video>
+</template>
+<script>
+import videojs from "video.js";
+
+export default {
+  name: "Hls",
+  props:{
+    playerID: {
+      type: String,
+      default: "my-video"
+    },
+    videoOptions:{
+      type: Object,
+      default: function(){
+        return {}
+      }
+    }
+  },
+  data(){
+    return {
+      player: null
+    }
+  },
+  mounted(){
+    this.player = videojs(
+      this.playerID,
+      this.videoOptions,
+      ()=>{
+        // console.log("加载完毕")
+        this.player.play()
+      }
+    );
+  },
+  beforeDestroy(){
+    if(this.player){
+      this.player.dispose()
+    }
+  }
+}
+</script>
+```
+
+## 控件compnents
+
+有默认的组件树，可在options中配置
+
+```js
+controlBar: {
+    playToggle: false,  // 不显示播放暂停
+    pictureInPictureToggle: false, // 不显示画中画
+    VolumePanel: false, // 不显示音量
+    fullscreenToggle: true, // 显示全屏按钮
+},
+```
+
+可根据需求进行定制
+
+## 插件plugins
