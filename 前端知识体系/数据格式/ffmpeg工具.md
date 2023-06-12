@@ -68,6 +68,35 @@ aspect 指定横纵比
 
 ### ffmpeg命令示例
 
+- rtmp转hls
+
+```
+ffmpeg -i rtmp://localhost:1935/live -c:v libx264 -preset veryfast -c:a aac -f hls -hls_time 2 -hls_list_size 6 -hls_flags delete_segments -hls_segment_filename D:/video/stream_%v/segment_%03d.ts D:/video/playlist.m3u8
+```
+
+- rtmp转多码率hls，windows的bat脚本
+
+```
+@echo off
+
+set input=rtmp://localhost:1935/live
+set output_path=D:/video
+
+set bitrate1=800k
+set bitrate2=1200k
+set bitrate3=2000k
+
+ffmpeg -i %input% -c:v libx264 -preset veryfast -c:a aac ^
+-b:v %bitrate1% -hls_time 10 -hls_list_size 6 -hls_flags delete_segments ^
+-hls_segment_filename %output_path%/%bitrate1%/stream_%%03d.ts %output_path%/%bitrate1%/playlist.m3u8 ^
+-b:v %bitrate2% -hls_time 10 -hls_list_size 6 -hls_flags delete_segments ^
+-hls_segment_filename %output_path%/%bitrate2%/stream_%%03d.ts %output_path%/%bitrate2%/playlist.m3u8 ^
+-b:v %bitrate3% -hls_time 10 -hls_list_size 6 -hls_flags delete_segments ^
+-hls_segment_filename %output_path%/%bitrate3%/stream_%%03d.ts %output_path%/%bitrate3%/playlist.m3u8
+
+pause
+```
+
 
 
 ## ffmpeg应用
