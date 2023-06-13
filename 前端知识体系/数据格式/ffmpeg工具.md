@@ -70,13 +70,13 @@ aspect 指定横纵比
 
 - rtmp转hls
 
-```
+```bash
 ffmpeg -i rtmp://localhost:1935/live -c:v libx264 -preset veryfast -c:a aac -f hls -hls_time 2 -hls_list_size 6 -hls_flags delete_segments -hls_segment_filename D:/video/stream_%v/segment_%03d.ts D:/video/playlist.m3u8
 ```
 
 - rtmp转多码率hls，windows的bat脚本
 
-```
+```bash
 @echo off
 
 set input=rtmp://localhost:1935/live
@@ -93,6 +93,32 @@ ffmpeg -i %input% -c:v libx264 -preset veryfast -c:a aac ^
 -hls_segment_filename %output_path%/%bitrate2%/stream_%%03d.ts %output_path%/%bitrate2%/playlist.m3u8 ^
 -b:v %bitrate3% -hls_time 10 -hls_list_size 6 -hls_flags delete_segments ^
 -hls_segment_filename %output_path%/%bitrate3%/stream_%%03d.ts %output_path%/%bitrate3%/playlist.m3u8
+
+pause
+```
+
+- bash脚本多个rtmp转hls
+
+```bash
+@echo off
+@REM 启用延期变量扩展
+setlocal enabledelayedexpansion
+
+set base_input=rtmp://localhost:1935/live
+set base_output=E:/stream/live
+
+set bitrate1=100k
+set bitrate2=1000k
+
+for /L %%N in (1,1,8) do (
+  set input=%base_input%%%N
+  set output=%base_output%%%N
+  ffmpeg -i !input! -c:v libx264 -preset veryfast -c:a aac ^
+  -b:v %bitrate1% -s 158x106 -hls_time 2 -hls_list_size 6 -hls_flags delete_segments ^
+  -hls_segment_filename !output!/low/stream_%%13d.ts !output!/low/index.m3u8 ^
+  -b:v %bitrate2% -s 1280x720 -hls_time 2 -hls_list_size 6 -hls_flags delete_segments ^
+  -hls_segment_filename !output!/high/stream_%%13d.ts !output!/high/index.m3u8
+)
 
 pause
 ```
