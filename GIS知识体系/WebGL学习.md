@@ -32,7 +32,7 @@
 
 ### 除以W
 
-获取立方体模型透视的简单方法，将Z坐标复制到W上，w可以描述透视
+获取立方体模型透视的简单方法，将Z坐标复制到W上，w可以描述透视。
 
 ### 简单投影
 
@@ -82,7 +82,23 @@ gl_Position = projection * model * vec4(position, 1.0);
 
 ### 透视矩阵（推导下）
 
-是由数学公式推导出来的
+[OpenGL透视投影](https://www.songho.ca/opengl/gl_projectionmatrix.html)
+
+透视投影将视椎体映射为立方体。
+
+已知信息：
+
+- 假设相机位置位于原点，t、b、l、r分别位于视椎体近面上下左右四条边的y、y、x、x坐标,n为近面z坐标，f为远面坐标。
+
+- 标准化设备（NDC）坐标：(-1,-1,-1)到(1,1,1)
+
+是由数学公式推导出来的：
+
+- 首先，将视椎体的视野坐标Xe,Ye投影到近裁剪面Xp,Yp
+- 由于视野坐标是右手坐标系，NDC为左手坐标系，所以Z要反向，Wc可定义为-Ze，**矩阵第四行确定**。
+- 将投影坐标Xp,Yp线性变换为NDC近平面坐标Xn,Yn
+- 然后得到Xn与Xe,Ze，Yn与Ye,Ze的推算关系，**确定矩阵的前两行**
+- 计算矩阵第四行
 
 ```GLSL
 MDN.perspectiveMatrix = function(fieldOfViewInRadians, aspectRatio, near, far) {
@@ -99,8 +115,6 @@ MDN.perspectiveMatrix = function(fieldOfViewInRadians, aspectRatio, near, far) {
 }
 
 ```
-
-
 
 ### 视图矩阵
 
