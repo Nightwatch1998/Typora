@@ -112,7 +112,7 @@ Core模块功能
 
 主要包括四大块：数学工具和函数、地球椭球模型、地图场景元素、数据结构和算法。
 
-## Render
+## Render（核心）
 
 `Render` 模块涉及地理可视化场景的渲染和渲染管道的管理。该模块包含了与图形渲染相关的功能和类。以下是 `Render` 模块的一些主要部分和功能：
 
@@ -123,27 +123,28 @@ Core模块功能
 - **纹理渲染（Texture Rendering）**: `Render` 模块包含了将纹理应用于几何体并进行渲染的功能。这涉及将纹理映射到三维物体表面，并根据材质属性和光照计算生成最终的渲染结果。
 - **光照和阴影（Lighting and Shadows）**: `Render` 模块定义了光照模型和阴影计算的功能。它包括了各种光源类型的支持（如平行光、点光源等），以及实现阴影投射的算法。
 - **后期处理（Post-processing）**: `Render` 模块还提供了一些后期处理效果的功能，如景深效果、辉光效果、色彩校正等。这些效果可以在最终渲染之后应用于场景，以增强可视化效果。
+- 缓冲区
+- 清除命令、计算命令、绘制命令
+- 上下文
+- 立方体贴图
+- 帧缓冲区
+- 通道
+- 采样器
+- 着色器
+- 纹理缓存
+- 顶点数组
 
-## Scene
+## Scene（主要API）
 
 `Scene` 模块涉及地理可视化场景的管理、渲染和交互。该模块包含了与场景相关的功能和类。以下是 `Scene` 模块的一些主要部分和功能：
 
-- **场景管理（Scene Management）**: `Scene` 模块提供了场景的创建和管理功能。它包含了场景的基本属性设置，如背景颜色、相机设置、光照设置等。开发者可以使用这些功能来创建自定义的可视化场景。
-- **相机控制（Camera Control）**: `Scene` 模块允许对场景中的相机进行控制。它提供了相机的移动、旋转、缩放等操作，以及获取相机状态和属性的功能。
-- **可视化对象（Visual Objects）**: `Scene` 模块提供了创建和管理可视化对象的功能。可视化对象可以是地形、模型、标记、几何体等，用于在场景中呈现地理数据和图形。
-- **地形（Terrain）**: `Scene` 模块支持地形的加载和渲染。它提供了地形数据的管理、LOD（Level of Detail）控制、地形纹理贴图等功能。
-- **图层管理（Layer Management）**: `Scene` 模块允许添加、移除和管理图层。图层可以是地图瓦片、影像、矢量数据等，用于叠加在场景中的可视化对象之上。
-- **鼠标交互（Mouse Interaction）**: `Scene` 模块提供了与鼠标交互相关的功能。它允许捕获鼠标事件，如点击、拖拽、滚动等，并根据用户操作进行相应的场景交互。
-- **屏幕空间操作（Screen Space Manipulation）**: `Scene` 模块支持屏幕空间的交互操作，如屏幕上的拾取、标记和绘制等。这些操作在屏幕空间中进行，而不依赖于场景的真实地理坐标。
-- **场景渲染回调（Scene Rendering Callbacks）**: `Scene` 模块提供了场景渲染过程中的回调函数，允许开发者在渲染的不同阶段进行自定义的操作和效果。
-
-补充
-
-- GLTF相关(补充)
+- GLTF相关
   - gltf管线
   - 各种gltf加载器
-
-- Model相关(补充)
+  - 添加缓冲区、默认值、额外信息
+  - 添加、移除扩展
+  
+- Model相关
   - 模型动画
   - 模型实例
   - 模型外观
@@ -182,18 +183,21 @@ Core模块功能
 - 各种数据加载器loader
 - 后期处理
 
+Scene模块主要包含了模型、gltf、3Dtiles、几何图形、场景等等。
+
 ## DataSources
 
 `Data Source` 模块是用于加载和管理地理数据源的模块。它提供了一种统一的方式来加载、处理和显示不同类型的地理数据。以下是 `Data Source` 模块的一些主要部分和功能：
 
-- **数据源管理（Data Source Management）**：`Data Source` 模块允许添加、移除和管理不同类型的地理数据源。数据源可以是矢量数据、栅格数据、点云数据等。
-- **数据源加载（Data Source Loading）**：`Data Source` 模块支持异步加载各种类型的地理数据源。它提供了加载和解析数据的接口，使得开发者能够从不同的数据源（如文件、网络服务）中获取地理数据。
-- **数据源可视化（Data Source Visualization）**：`Data Source` 模块允许对加载的地理数据进行可视化。它提供了处理和渲染地理数据的功能，使得数据可以在场景中以可视化的方式呈现。
-- **数据源样式化（Data Source Styling）**：`Data Source` 模块允许对加载的地理数据进行样式化和符号化。开发者可以定义数据源的样式，如颜色、线宽、填充模式等，以使数据以符号化的方式显示。
-- **数据源过滤（Data Source Filtering）**：`Data Source` 模块允许对加载的地理数据进行过滤和筛选。开发者可以定义过滤规则，以限制要显示或处理的数据的范围。
-- **数据源事件（Data Source Events）**：`Data Source` 模块提供了一组事件，用于监听数据源的加载、更新和状态变化等。开发者可以通过监听这些事件来执行相应的操作或响应用户交互。
-- **数据源属性查询（Data Source Property Query）**：`Data Source` 模块允许查询加载的地理数据源的属性信息。开发者可以获取数据源中的属性数据，如属性名称、类型、值等。
-- **数据源更新（Data Source Updates）**：`Data Source` 模块支持对加载的地理数据源进行动态更新。开发者可以通过添加、删除或修改数据源中的数据来实现数据的实时更新和变化。
+- 定义了各种图形Graphics
+  - 广告牌
+  - 3Dtileset
+  - 圆柱、椭圆
+  - 平面、多边形、折线
+- 各种可视化器Visualizer
+- 各种几何更新器GeometryUpdater
+- 属性：位置、材质、速度等等
+- KML数据加载与展示
 
 ## Shader
 
@@ -211,34 +215,20 @@ Core模块功能
 ```
 Documentation
 ├── Contributors 
-│   ├── BuildGuide
-│   ├── CLAs
-│   ├── CodeReviewGuide
-│   ├── CodingGuide
-│   ├── CommittersGuide
-│   ├── DocumentationGuide
-│   ├── DracoModuleManagement
-│   ├── MobileGuide
-│   ├── PerformanceTestingGuide
-│   ├── PresentersGuide
-│   ├── ReleaseGuide
-│   ├── TestingGuide
-│   └── VSCodeGuide
-├── CustomShaderGuide
-├── FabricGuide
-├── Images
-├── OfflineGuide
+│   ├── BuildGuide // 在本地构建和运行文档
+│   ├── CodingGuide // JS和GLSL编码规范，设计、可维护性和性能的最佳实践
+│   ├── DocumentationGuide // 如何写出好的参考文档
+│   ├── PerformanceTestingGuide // 测量运行时性能的最佳实践
+│   ├── TestingGuide // 如何编写和运行cesium测试
+│   └── VSCodeGuide // vscode 相关设置
+├── CustomShaderGuide // 自定义着色器指南
+├── FabricGuide // 材质指南
+├── OfflineGuide // 离线使用指南
 └── Schemas
     └── Fabric
 ```
 
 
-
-- Conrtibutors 各种手册
-  - **CodingGuide** 编码指南
-  - **DocumentationGuide** 文档指南
-  - 性能测试指南
-- CustomShaderGuide 自定义着色器
 
 ## 其他
 
