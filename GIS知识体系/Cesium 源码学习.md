@@ -353,6 +353,221 @@ primitive描述场景中的几何图形，可以是单一的也可以是多个�
 
 4000多行
 
+```js
+// Scene是包含了所有3D图形对象和状态的Cesium虚拟场景
+function Scene(options) {
+  // 创建上下文
+  const canvas = options.canvas;
+  const contextOptions = clone(options.contextOptions);
+  const context = new Context(canvas, contextOptions);
+
+  // 定义实例变量，但是通过原型对象的属性访问
+  this._id = createGuid();
+  this._jobScheduler = new JobScheduler();
+  // ...
+
+  // 定义实例属性members
+  // 用户输入后是否立即完成过渡动画
+  this.completeMorphOnUserInput = true;
+  // 过度开始事件
+  this.morphStart = new Event();
+  // 过度完成事件
+  this.morphComplete = new Event();
+  // 天空盒
+  this.skyBox = undefined;
+  // 大气层
+  this.skyAtmosphere = undefined;
+  // 太阳
+  this.sun = undefined;
+  // 月亮
+  this.moon = undefined;
+  // 雾
+  this.fog = new Fog();
+  // 没有天空盒时的背景色
+  this.backgroundColor = Color.clone(Color.BLACK);
+
+  // 过渡相关的参数
+  // 过渡动画的时间
+  this.morphTime = 1.0;
+  this.farToNearRatio = 1000.0;
+  this.logarithmicDepthFarToNearRatio = 1e9;
+  // ...
+
+  // 允许选用深度缓冲区
+  this.useDepthPicking = true;
+  // 选用半透明深度
+  this.pickTranslucentDepth = false;
+  // 相机等待时间
+  this.cameraEventWaitTime = 500.0;
+  // 阴影地图
+  this.shadowMap = new ShadowMap({
+    context: context,
+    lightCamera: this._shadowMapCamera,
+    enabled: defaultValue(options.shadows, false),
+  });
+  // 跟踪每一帧的环境状态
+  this._environmentState = {}
+
+  // ...
+
+  // 光照
+  this.light = new SunLight();
+}
+
+// 定义原型对象的属性
+Object.defineProperties(Scene.prototype, {
+
+  // 绑定的canvas元素
+  canvas: {
+    get: function () {
+      return this._canvas;
+    },
+  },
+
+  // 绘制缓冲区高度
+  drawingBufferHeight: {
+    get: function () {
+      return this._context.drawingBufferHeight;
+    },
+  },
+
+  // 绘制缓冲区宽度
+  drawingBufferWidth: {
+    get: function () {
+      return this._context.drawingBufferWidth;
+    },
+  },
+
+  // cube map一个边的最大像素长度
+  maximumCubeMapSize: {
+    get: function () {
+      return ContextLimits.maximumCubeMapSize;
+    },
+  },
+
+  // 支持位置选择
+  pickPositionSupported: {
+    get: function () {
+      return this._context.depthTexture;
+    },
+  },
+
+  // 深度测试椭球
+  globe: {
+    get: function () {
+      return this._globe;
+    },
+
+    set: function (globe) {
+      this._globe = this._globe && this._globe.destroy();
+      this._globe = globe;
+
+      updateGlobeListeners(this, globe);
+    },
+  },
+
+  // 基本图元的集合
+  primitives: {
+    get: function () {
+      return this._primitives;
+    },
+  },
+
+  // 场景的相机
+  camera: {
+    get: function () {
+      return this._view.camera;
+    },
+    set: function (camera) {
+      // For internal use only. Documentation is still @readonly.
+      this._view.camera = camera;
+    },
+  },
+
+  // 场景的视图
+  view: {
+    get: function () {
+      return this._view;
+    },
+    set: function (view) {
+      // For internal use only. Documentation is still @readonly.
+      this._view = view;
+    },
+  },
+
+  // 地图投影
+  mapProjection: {
+    get: function () {
+      return this._mapProjection;
+    },
+  },
+
+  // 任务调度器
+  jobScheduler: {
+    get: function () {
+      return this._jobScheduler;
+    },
+  },
+
+  // 帧状态
+  frameState: {
+    get: function () {
+      return this._frameState;
+    },
+  },
+
+  // 影像图层
+  imageryLayers: {
+    get: function () {
+      if (!defined(this.globe)) {
+        return undefined;
+      }
+
+      return this.globe.imageryLayers;
+    },
+  },
+
+  // 环境状态
+  environmentState: {
+    get: function () {
+      return this._environmentState;
+    },
+  },
+
+  // 上下文对象
+  context: {
+    get: function () {
+      return this._context;
+    },
+  },
+  // ...
+  }
+)
+
+// 接下来定义原型方法
+// 是否支持纹理格式压缩
+Scene.prototype.getCompressedTextureFormatSupported = function (format) {}
+// 更新和渲染场景，一般会自动调用
+Scene.prototype.render = function (time) {}
+// 强制渲染
+Scene.prototype.forceRender = function (time) {}
+// 捕获窗口中的单个元素
+Scene.prototype.pick = function (windowPosition, width, height) {}
+// 捕获窗口中的若干个元素
+Scene.prototype.drillPick = function (windowPosition, limit, width, height) {}
+// 捕获大地坐标
+Scene.prototype.pickPositionWorldCoordinates = function (){}
+// 捕获笛卡尔坐标
+Scene.prototype.pickPosition = function (windowPosition, result) {}
+// 通过射线捕获
+Scene.prototype.pickFromRay = function (ray, objectsToExclude, width) {}
+
+// 还有若干函数...
+
+```
+
+
+
 ### Globe对象
 
 ### Material对象
