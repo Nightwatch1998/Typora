@@ -129,11 +129,15 @@ http://localhost:8080/geoserver
 1. 创建数据store，选择数据源shp文件，指定DBF 字符集
 2. 在发布界面，由数据生成边界框，投影的和经纬度的
 
-### 发布PostGIS table（补充）
-
-
+### 发布PostGIS table
 
 [发布postgis表](https://docs.geoserver.org/latest/en/user/gettingstarted/postgis-quickstart/index.html)
+
+1. 首先安装postgresql和对应版本的postgis扩展
+2. 创建数据库并导入官方案例数据
+3. 在geoserver页面创建新的数据仓库，添加postgis数据,配置连接参数
+4. 添加新的图层，选择刚刚创建的数据仓库，计算边界框
+5. 发布界面设置数据类型为polygon，保存
 
 ## 发布WMTS服务
 
@@ -185,3 +189,6 @@ const geoserverWMTSProvider = new Cesium.WebMapTileServiceImageryProvider({
 })
 ```
 
+## 发布WCF服务
+
+## 发布WFS服务
